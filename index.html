@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will's AI Workflow — Mindvalley Social</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0B0D11;
+    color: #E2E8F0;
+    min-height: 100vh;
+    padding: 60px 24px 120px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #A78BFA, #818CF8, #6EE7B7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 14px;
+    color: #64748B;
+    font-weight: 500;
+  }
+
+  /* ── Flow connector (vertical line between blocks) ── */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .connector .line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(129,140,248,0.5), rgba(129,140,248,0.15));
+  }
+  .connector .arrow {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid rgba(129,140,248,0.5);
+  }
+
+  /* ── Phase label (the big category headers) ── */
+  .phase-label {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .phase-label span {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #94A3B8;
+    padding: 6px 16px;
+    border: 1px solid rgba(148,163,184,0.2);
+    border-radius: 100px;
+    background: rgba(148,163,184,0.05);
+  }
+
+  /* ── Flow card ── */
+  .flow-card {
+    background: #12151B;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px 32px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .flow-card:hover {
+    border-color: rgba(129,140,248,0.25);
+  }
+  .flow-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .flow-card .icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .flow-card .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #F1F5F9;
+    letter-spacing: -0.3px;
+  }
+  .flow-card .card-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+    margin-top: 2px;
+  }
+  .flow-card .card-body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #94A3B8;
+  }
+  .flow-card .card-body strong {
+    color: #CBD5E1;
+    font-weight: 600;
+  }
+
+  /* ── Tag chips ── */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #94A3B8;
+  }
+
+  /* ── Color themes for icon boxes ── */
+  .theme-purple .icon-box  { background: rgba(167,139,250,0.12); }
+  .theme-blue .icon-box    { background: rgba(96,165,250,0.12); }
+  .theme-green .icon-box   { background: rgba(110,231,183,0.12); }
+  .theme-amber .icon-box   { background: rgba(251,191,36,0.12); }
+  .theme-rose .icon-box    { background: rgba(251,113,133,0.12); }
+  .theme-cyan .icon-box    { background: rgba(103,232,249,0.12); }
+  .theme-indigo .icon-box  { background: rgba(129,140,248,0.12); }
+  .theme-orange .icon-box  { background: rgba(251,146,60,0.12); }
+  .theme-teal .icon-box    { background: rgba(45,212,191,0.12); }
+  .theme-pink .icon-box    { background: rgba(244,114,182,0.12); }
+
+  /* ── Branch split (side by side cards) ── */
+  .branch-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .branch-row .flow-card {
+    padding: 22px 24px;
+  }
+  .branch-row .flow-card .card-title {
+    font-size: 15px;
+  }
+  .branch-row .flow-card .card-body {
+    font-size: 13px;
+  }
+
+  /* ── Branch connector (splits into two) ── */
+  .branch-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .branch-connector .stem {
+    width: 2px;
+    height: 20px;
+    background: rgba(129,140,248,0.4);
+  }
+  .branch-connector .fork {
+    width: 50%;
+    height: 2px;
+    background: rgba(129,140,248,0.25);
+    position: relative;
+  }
+  .branch-connector .fork::before,
+  .branch-connector .fork::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 16px;
+    background: rgba(129,140,248,0.3);
+    bottom: 0;
+  }
+  .branch-connector .fork::before { left: 0; }
+  .branch-connector .fork::after { right: 0; }
+  .branch-arrows {
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+    padding: 0;
+  }
+  .branch-arrows .arrow {
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid rgba(129,140,248,0.4);
+  }
+
+  /* ── Merge connector (two back into one) ── */
+  .merge-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .merge-arms {
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+  }
+  .merge-arms .arm {
+    width: 2px;
+    height: 16px;
+    background: rgba(129,140,248,0.3);
+  }
+  .merge-connector .bar {
+    width: 50%;
+    height: 2px;
+    background: rgba(129,140,248,0.25);
+  }
+  .merge-connector .stem {
+    width: 2px;
+    height: 20px;
+    background: rgba(129,140,248,0.4);
+  }
+  .merge-connector .arrow {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid rgba(129,140,248,0.5);
+  }
+
+  /* ── Frequency badge ── */
+  .freq {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .freq-daily    { background: rgba(110,231,183,0.15); color: #6EE7B7; }
+  .freq-weekly   { background: rgba(96,165,250,0.15); color: #60A5FA; }
+  .freq-adhoc    { background: rgba(251,191,36,0.15); color: #FBBf24; }
+  .freq-project  { background: rgba(167,139,250,0.15); color: #A78BFA; }
+
+  /* ── Meta pattern box at the bottom ── */
+  .meta-box {
+    margin-top: 12px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(129,140,248,0.06), rgba(110,231,183,0.04));
+    border: 1px solid rgba(129,140,248,0.15);
+    border-radius: 14px;
+    text-align: center;
+  }
+  .meta-box .meta-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #818CF8;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .meta-box .meta-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #94A3B8;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .meta-box .meta-body strong {
+    color: #E2E8F0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    body { padding: 32px 16px 80px; }
+    .header h1 { font-size: 24px; }
+    .branch-row { grid-template-columns: 1fr; }
+    .branch-connector .fork,
+    .branch-arrows,
+    .merge-arms,
+    .merge-connector .bar { width: 0; display: none; }
+    .flow-card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <div class="header">
+    <h1>Will's AI Workflow</h1>
+    <p>Mindvalley Organic Social — How I use Claude across my day</p>
+  </div>
+
+  <!-- ═══════════════ PHASE 1: INPUTS ═══════════════ -->
+  <div class="phase-label"><span>Phase 1 — Inputs</span></div>
+
+  <div class="flow-card theme-purple">
+    <div class="card-header">
+      <div class="icon-box">📥</div>
+      <div>
+        <div class="card-title">Gather Raw Inputs</div>
+        <div class="card-subtitle">Everything starts here</div>
+      </div>
+    </div>
+    <div class="card-body">
+      I feed in whatever I'm working with — <strong>Slack threads</strong>, <strong>Airtable data</strong>, <strong>video transcripts</strong>, <strong>uploaded docs</strong> (PRDs, strategy docs, brand guidelines), <strong>CSV exports</strong> from Metabase/Looker, <strong>messaging documents</strong>, or just a raw idea or question. Claude pulls additional context from connected MCPs (Slack, Airtable, Google Drive, Figma) and runs web research when needed.
+    </div>
+    <div class="tags">
+      <span class="tag">Slack MCP</span>
+      <span class="tag">Airtable MCP</span>
+      <span class="tag">Google Drive</span>
+      <span class="tag">Figma</span>
+      <span class="tag">File uploads</span>
+      <span class="tag">Web search</span>
+    </div>
+  </div>
+
+  <!-- ── connector ── -->
+  <div class="connector"><div class="line"></div><div class="arrow"></div></div>
+
+  <!-- ═══════════════ PHASE 2: PROCESS ═══════════════ -->
+  <div class="phase-label"><span>Phase 2 — Analysis & Synthesis</span></div>
+
+  <div class="flow-card theme-blue">
+    <div class="card-header">
+      <div class="icon-box">🔍</div>
+      <div>
+        <div class="card-title">Research & Analyse</div>
+        <div class="card-subtitle">Make sense of the raw material</div>
+      </div>
+    </div>
+    <div class="card-body">
+      Claude cross-references inputs against <strong>trending news</strong>, <strong>platform best practices</strong>, <strong>competitor strategies</strong>, and <strong>internal data</strong> (Airtable project tracker, content calendars, team workloads). It identifies what matters — whether that's a data error in a leads dashboard, a gap in the content calendar, or the right angle for today's LinkedIn post.
+    </div>
+    <div class="tags">
+      <span class="tag">Trend scanning</span>
+      <span class="tag">Data validation</span>
+      <span class="tag">Competitive intel</span>
+      <span class="tag">Content calendar mapping</span>
+      <span class="tag">UTM/attribution debugging</span>
+    </div>
+  </div>
+
+  <!-- ── connector ── -->
+  <div class="connector"><div class="line"></div><div class="arrow"></div></div>
+
+  <!-- ═══════════════ PHASE 3: BRANCH — WHAT GETS PRODUCED ═══════════════ -->
+  <div class="phase-label"><span>Phase 3 — Production</span></div>
+
+  <!-- BRANCH: splits into two columns -->
+  <div class="branch-connector">
+    <div class="stem"></div>
+    <div class="fork"></div>
+  </div>
+  <div class="branch-arrows"><div class="arrow"></div><div class="arrow"></div></div>
+
+  <div class="branch-row" style="margin-bottom: 16px;">
+    <!-- LEFT: Daily Content -->
+    <div class="flow-card theme-green">
+      <div class="card-header">
+        <div class="icon-box">✍️</div>
+        <div>
+          <div class="card-title">Daily LinkedIn Content <span class="freq freq-daily">Daily</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        3 posts for Vishen's profile + 1 for the company page. Each with full copy, format (text / carousel / video brief), comment-trigger CTAs for ManyChat routing, and publish timing. Carousel posts include slide-by-slide design outlines.
+      </div>
+      <div class="tags">
+        <span class="tag">Custom skill</span>
+        <span class="tag">Markdown briefs</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Strategy Docs -->
+    <div class="flow-card theme-amber">
+      <div class="card-header">
+        <div class="icon-box">📋</div>
+        <div>
+          <div class="card-title">Strategy & Research <span class="freq freq-adhoc">As needed</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        Deep dives that produce comprehensive documents — YouTube strategy, team priorities, TikTok Shop playbooks, channel maps, campaign task lists. These become the source of truth that other outputs flow from.
+      </div>
+      <div class="tags">
+        <span class="tag">Markdown</span>
+        <span class="tag">.docx</span>
+        <span class="tag">.xlsx</span>
+        <span class="tag">Presentations</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="branch-row">
+    <!-- LEFT: Data & Ops -->
+    <div class="flow-card theme-cyan">
+      <div class="card-header">
+        <div class="icon-box">📊</div>
+        <div>
+          <div class="card-title">Data & Operations <span class="freq freq-weekly">Weekly</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        Task management via Airtable — pulling team tasks, creating records from Slack, building RACI matrices. Data validation on campaign metrics (leads, attribution, UTMs). Content calendar exports and summaries.
+      </div>
+      <div class="tags">
+        <span class="tag">Airtable CRUD</span>
+        <span class="tag">CSV analysis</span>
+        <span class="tag">Slack extraction</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Comms -->
+    <div class="flow-card theme-rose">
+      <div class="card-header">
+        <div class="icon-box">💬</div>
+        <div>
+          <div class="card-title">Comms & Documents <span class="freq freq-adhoc">As needed</span></div>
+        </div>
+      </div>
+      <div class="card-body">
+        Drafting messages in my voice (Slack style saved in memory), offboarding letters, vendor correspondence, editor briefs from video transcripts, YouTube descriptions. Quick-turn outputs that go straight to people.
+      </div>
+      <div class="tags">
+        <span class="tag">Writing style memory</span>
+        <span class="tag">.docx letters</span>
+        <span class="tag">Paper edits</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERGE: back to one -->
+  <div class="merge-connector">
+    <div class="merge-arms"><div class="arm"></div><div class="arm"></div></div>
+    <div class="bar"></div>
+    <div class="stem"></div>
+    <div class="arrow"></div>
+  </div>
+
+  <!-- ═══════════════ PHASE 4: TOOLING ═══════════════ -->
+  <div class="phase-label"><span>Phase 4 — Build Interactive Tools</span></div>
+
+  <div class="flow-card theme-indigo">
+    <div class="card-header">
+      <div class="icon-box">⚙️</div>
+      <div>
+        <div class="card-title">Dashboards & Command Centres <span class="freq freq-project">Project</span></div>
+        <div class="card-subtitle">Turn strategy into something the team can use</div>
+      </div>
+    </div>
+    <div class="card-body">
+      Strategy docs and data get turned into <strong>interactive React artifacts</strong> or <strong>HTML tools</strong> — dashboards with live checklists, command centres with embedded intelligence, ROI calculators, editable role profiles, architecture maps. Heavy iteration on UI: tightening spacing, adding edit modes, fixing rendering for Claude artifact sandbox. These are designed for the team to open and use directly.
+    </div>
+    <div class="tags">
+      <span class="tag">React / JSX artifacts</span>
+      <span class="tag">HTML dashboards</span>
+      <span class="tag">Figma (with fallback)</span>
+      <span class="tag">Google Stitch prompts</span>
+      <span class="tag">Tailwind + shadcn/ui</span>
+    </div>
+  </div>
+
+  <!-- ── connector ── -->
+  <div class="connector"><div class="line"></div><div class="arrow"></div></div>
+
+  <!-- ═══════════════ PHASE 5: ITERATE ═══════════════ -->
+  <div class="phase-label"><span>Phase 5 — Iterate Until Team-Ready</span></div>
+
+  <div class="flow-card theme-orange">
+    <div class="card-header">
+      <div class="icon-box">🔄</div>
+      <div>
+        <div class="card-title">Refine & Polish</div>
+        <div class="card-subtitle">Most sessions don't end on the first pass</div>
+      </div>
+    </div>
+    <div class="card-body">
+      I push back on outputs until they're right — <strong>"still too tall"</strong>, <strong>"this isn't a flowchart"</strong>, <strong>"I want it to actually generate, not produce a prompt"</strong>. Claude rebuilds, compresses, restructures. Typically 2–4 rounds. The goal is always: <strong>can someone on my team open this and use it without asking me questions?</strong>
+    </div>
+    <div class="tags">
+      <span class="tag">UI tightening</span>
+      <span class="tag">Format changes</span>
+      <span class="tag">Edit mode / export</span>
+      <span class="tag">Cross-platform testing</span>
+    </div>
+  </div>
+
+  <!-- ── connector ── -->
+  <div class="connector"><div class="line"></div><div class="arrow"></div></div>
+
+  <!-- ═══════════════ PHASE 6: OUTPUT ═══════════════ -->
+  <div class="phase-label"><span>Phase 6 — Deliver</span></div>
+
+  <div class="flow-card theme-teal">
+    <div class="card-header">
+      <div class="icon-box">🚀</div>
+      <div>
+        <div class="card-title">Share With Team & Execute</div>
+        <div class="card-subtitle">Files, artifacts, Airtable records, messages</div>
+      </div>
+    </div>
+    <div class="card-body">
+      Finished outputs go to the team as <strong>downloadable files</strong> (.docx, .xlsx, .html, .jsx), <strong>Claude artifacts</strong> they can open in their own sessions, <strong>Airtable records</strong> pushed directly into the project tracker, <strong>Slack messages</strong> drafted in my voice, or <strong>Figma files</strong>. Daily LinkedIn briefs go straight into the publishing pipeline.
+    </div>
+    <div class="tags">
+      <span class="tag">Team downloads</span>
+      <span class="tag">Claude artifacts</span>
+      <span class="tag">Airtable push</span>
+      <span class="tag">Slack drafts</span>
+      <span class="tag">Figma</span>
+      <span class="tag">Publishing pipeline</span>
+    </div>
+  </div>
+
+  <!-- ── connector ── -->
+  <div class="connector"><div class="line"></div><div class="arrow"></div></div>
+
+  <!-- ═══════════════ META PATTERN ═══════════════ -->
+  <div class="meta-box">
+    <div class="meta-title">The Meta Pattern</div>
+    <div class="meta-body">
+      <strong>Raw inputs → Analysis & synthesis → Strategy or content → Interactive tool → Iterate until team-ready → Ship.</strong><br><br>
+      I'm using Claude as a <strong>one-person ops layer</strong> that sits between my data sources (Slack, Airtable, Metabase, Dropbox, transcripts) and my team's execution. It turns fragmented information into polished, usable outputs — daily content, strategy docs, dashboards, and operational records — so the team can act without asking me to decode everything first.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
